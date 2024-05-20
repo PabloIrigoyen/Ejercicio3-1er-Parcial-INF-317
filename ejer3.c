@@ -3,25 +3,34 @@
 
 float mul(float a, float b) {
     float res = 0;
+    int n=(int) b;
     #pragma omp parallel for reduction(+:res)
-    for (int i = 0; i < b; i++) {
+    for (int i = 0; i < n; i++) {
         res += a;
     }
     return res;
 }
 
 float div(float a, float b) {
-    float res = 0;
-    while (a >= b) {
-        #pragma omp parallel
-        {
-            #pragma omp critical
-            {
-                a -= b;
-                res++;
-            }
-        }
+    if(b==0){
+        return -1;
     }
+    float res = 0;
+    #pragma omp parallel 
+    {
+         float aux=a;
+         float res1=0;
+         while(aux>=b){
+             aux-=b;
+             res1++;
+         }
+         #pragma omp critical 
+         {
+            a=aux;
+            res+=res1;
+         }
+    }
+    
     return res;
 }
 int main() {
